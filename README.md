@@ -82,7 +82,7 @@ docker compose up --build
 ## How this maps to my experience
 
 This is the project behind **Big Data Processing with Apache Spark** on my CV
-(Aug – Dec 2024, Università di Pisa). The rebuild adds the engineering the
+(Jan 2024 – Sep 2024). The rebuild adds the engineering the
 original notebook lacked: layered storage, reproducible runs, data-quality
 gates, and code a teammate can run without opening a notebook.
 
