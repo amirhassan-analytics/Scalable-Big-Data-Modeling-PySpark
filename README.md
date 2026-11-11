@@ -1,106 +1,92 @@
-# ☄️ Distributed Data Analysis & Mining of NASA Asteroid Dataset
+# NASA Asteroid Risk Analysis — PySpark Lakehouse
 
-## Risk Classification | Scalable Clustering | Big Data with Apache Spark
-#### A Final-Year Project in Distributed Data Analytics & Mining (DDAM)
+Distributed data pipeline for the NASA Jet Propulsion Laboratory asteroid
+dataset: **958,524 records, 45 features**. A modern rebuild of the original
+university project (`Scalable-Big-Data-Modeling-PySpark`), reframed from a
+machine-learning notebook into a production-style PySpark lakehouse —
+the same pattern used for large-scale data engineering work.
 
-## 📌 Overview
-This project leverages distributed computing and data mining techniques to analyze and classify asteroids from NASA's Jet Propulsion Laboratory (JPL) dataset. With over 950,000+ records and 45+ features, the objective was to identify potentially hazardous asteroids (PHAs), classify orbital patterns, and uncover hidden insights in high-dimensional astronomical data using Apache Spark.
+## What it does
 
-## 🎯 Objectives
-Predict and classify asteroids that pose a threat to Earth (PHA classification)
+| Layer | What happens |
+|---|---|
+| Bronze | Raw NASA JPL data ingested as-is into Parquet, with source row counts recorded |
+| Silver | Cleaned data: missing values imputed (regression / statistical), duplicates removed, 45 features reduced to the top 17 by correlation, normalised and vectorised |
+| Gold | Analytics tables: hazardous-asteroid (PHA) classification results and K-Means orbital clusters (K=6) |
+| Quality | Row-count, null-rate and schema checks at every layer — the pipeline fails if a layer loses data unexpectedly |
 
-Apply clustering techniques to uncover new groupings beyond orbital classes
+Results from the original analysis, kept as the Gold-layer output:
+- **PHA classification (Random Forest): 100% recall, ~90% precision** — hazardous asteroids are never missed
+- **Clustering (K-Means, K=6):** orbital groupings that differ from NASA's own class labels
+- **Final dataset: 938,597 rows, 17 features** after cleaning
 
-Handle extreme data imbalance with sampling strategies
+## Architecture
 
-Enable scalable big data processing using distributed computing
+```
+data/raw/asteroids.csv  (NASA JPL Small-Body Database)
+      │  extract.py
+      ▼
+data/bronze/  (raw Parquet)
+      │  transform.py — clean, impute, select features
+      ▼
+data/silver/  (cleaned Parquet, 17 features)
+      │  lakehouse.py — write Gold tables
+      ▼
+data/gold/pha_classification/  +  data/gold/clusters/
+```
 
-Perform risk analysis using machine learning models and interpret results
+## Quick start
 
-## 📁 Dataset
-Source: NASA JPL Small-Body Database
+```bash
+# 1. Place the NASA JPL dataset in data/raw/ (see data/README.md)
+# 2. Install dependencies (needs Java 11+ for Spark)
+pip install -r requirements.txt
 
-Records: 958,524 asteroids
+# 3. Run the whole pipeline
+python -m src.run_pipeline
 
-Attributes: 45 features (orbital parameters, diameters, velocities, etc.)
+# 4. Check the outputs
+ls data/gold/
+```
 
-Final Optimized Dataset: 938,597 rows and 17 selected features after cleaning
+Or in Docker (Spark + Python, no local Java needed):
 
-## ⚙️ Tools & Technologies
-Language: Python
+```bash
+docker compose up --build
+```
 
-Framework: Apache Spark (PySpark)
+## Project structure
 
-Libraries: pyspark.ml, scikit-learn, matplotlib, seaborn
+```
+├── README.md
+├── docker-compose.yml
+├── Dockerfile
+├── requirements.txt
+├── .env.example
+├── src/
+│   ├── config.py
+│   ├── extract.py
+│   ├── transform.py
+│   ├── lakehouse.py
+│   ├── classify.py
+│   ├── cluster.py
+│   ├── data_quality.py
+│   └── run_pipeline.py
+├── tests/
+│   └── test_transform.py
+├── data/
+│   └── README.md
+└── .github/workflows/ci.yml
+```
 
-Techniques: Feature Engineering, Clustering, Classification, Undersampling, Data Visualization
+## How this maps to my experience
 
-Platform: Jupyter Notebooks / VS Code
+This is the project behind **Big Data Processing with Apache Spark** on my CV
+(Aug – Dec 2024, Università di Pisa). The rebuild adds the engineering the
+original notebook lacked: layered storage, reproducible runs, data-quality
+gates, and code a teammate can run without opening a notebook.
 
-## 🔧 Workflow & Methodology
-1. Data Preprocessing & Feature Engineering
-Merged multi-source data into Spark DataFrames
+## Tech
 
-Handled missing values using regression and statistical imputation
-
-Reduced dimensions by selecting top 17 features using correlation analysis
-
-Normalized and vectorized data for distributed ML processing
-
-2. Classification of Hazardous Asteroids
-Algorithms: Random Forest, Logistic Regression, SVM, Gradient Boosting
-
-Addressed class imbalance using undersampling technique
-
-Achieved 100% recall for PHA class by prioritizing true positive detection
-
-Balanced high recall with acceptable precision for optimal risk signaling
-
-3. Clustering for Orbital Grouping
-Applied K-Means with optimal K=6 (based on Elbow and Silhouette Score)
-
-Clustered based on physical and orbital features like eccentricity, magnitude, velocity
-
-Revealed non-traditional asteroid groupings that differed from NASA’s orbital class labels
-
-Spark’s distributed clustering scaled efficiently over hundreds of thousands of records
-
-4. Visualization & Analysis
-Visualized clusters in 2D (PCA) and 3D space
-
-Generated heatmaps for feature correlation
-
-Risk distribution and prediction confidence analyzed with bar/line charts
-
-## 📈 Results & Highlights
-
-Task	Technique Used	Highlight
-PHA Classification	Random Forest	100% Recall, ~90% Precision
-Clustering (K=6)	K-Means	Novel asteroid groupings discovered
-Imbalance Handling	Undersampling	Enabled fair learning from minority class
-Scalability	Apache Spark	Efficient on 950K+ records
-## 🔍 Key Insights
-Majority of PHA-labeled asteroids were missed in baseline models without imbalance handling
-
-Clustering analysis suggested alternate asteroid groupings based on physical features
-
-Spark provided necessary scalability and speed, enabling real-time processing simulations
-
-High precision + recall models aid in early detection and risk forecasting of near-Earth objects
-
-## 🧠 Learnings & Contributions
-Hands-on experience with big data frameworks and real-world datasets
-
-Tackled imbalanced classification challenges in a high-stakes scientific dataset
-
-Developed end-to-end pipeline: from data ingestion to distributed model deployment
-
-Contributed methodological insights for scalable asteroid risk analysis
-
-## 👥 Authors
-Amir Hassan
-
-
-## 📫 Contact
-## 📧 amirhassanunipi29@gmail.com
-🔗 Let’s collaborate on https://www.linkedin.com/in/amirhassan786/
+Python · Apache Spark (PySpark) · Parquet · Docker · scikit-learn ·
+pyspark.ml · pandas
